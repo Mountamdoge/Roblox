@@ -1,43 +1,34 @@
-﻿-- FireButton.lua
+-- FireButton.lua
 -- LocalScript → StarterPlayerScripts
-
 
 local Players           = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService  = game:GetService("UserInputService")
 
-
 local player    = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
-local Abilities = ReplicatedStorage:WaitForChild("Abilities")
-
+local Abilities = ReplicatedStorage:WaitForChild("Abilities", 10)
+if not Abilities then warn("Abilities remote not found") return end
 
 -- ── TEAM TOGGLE STATE ─────────────────────────────────────────────────────────
 
-
 local teamFireEnabled = false
-
 
 local function isSameTeam(p)
     if teamFireEnabled then return false end
     return player.Team ~= nil and p.Team == player.Team
 end
 
-
 -- ── KILL COOLDOWN ─────────────────────────────────────────────────────────────
-
 
 local lastKillTime  = 0
 local KILL_COOLDOWN = 0.5
-
 
 local function onTargetKilled()
     lastKillTime = tick()
 end
 
-
 -- ── AUTO ESCAPE LOOP ──────────────────────────────────────────────────────────
-
 
 task.spawn(function()
     while true do
@@ -56,9 +47,7 @@ task.spawn(function()
     end
 end)
 
-
 -- ── EYEPATCH REMOVER ──────────────────────────────────────────────────────────
-
 
 local function checkAndDestroyEyepatch(child)
     if child.Name == "EyepatchUI" then
@@ -68,24 +57,19 @@ local function checkAndDestroyEyepatch(child)
     end
 end
 
-
 local existingEyepatch = PlayerGui:FindFirstChild("EyepatchUI")
 if existingEyepatch then checkAndDestroyEyepatch(existingEyepatch) end
 PlayerGui.ChildAdded:Connect(checkAndDestroyEyepatch)
 
-
 -- ── GUI ───────────────────────────────────────────────────────────────────────
-
 
 local old = PlayerGui:FindFirstChild("InteractionGui")
 if old then old:Destroy() end
-
 
 local LIGHT_BLUE   = Color3.fromRGB(27, 117, 188)
 local DARK_BLUE    = Color3.fromRGB(16, 88, 150)
 local TEAM_ON_COL  = Color3.fromRGB(220, 60, 60)
 local TEAM_OFF_COL = Color3.fromRGB(30, 140, 60)
-
 
 local gui = Instance.new("ScreenGui")
 gui.Name         = "InteractionGui"
@@ -93,9 +77,7 @@ gui.ResetOnSpawn = false
 gui.DisplayOrder = 9999
 gui.Parent       = PlayerGui
 
-
 local SIZE = 60
-
 
 local mainCircle = Instance.new("Frame")
 mainCircle.Name             = "InteractionButton"
@@ -105,18 +87,15 @@ mainCircle.BackgroundColor3 = DARK_BLUE
 mainCircle.BorderSizePixel  = 0
 mainCircle.Parent           = gui
 
-
 local outerCorner = Instance.new("UICorner")
 outerCorner.CornerRadius = UDim.new(1, 0)
 outerCorner.Parent       = mainCircle
-
 
 local stroke = Instance.new("UIStroke")
 stroke.Thickness       = 4.5
 stroke.Color           = Color3.fromRGB(18, 32, 46)
 stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 stroke.Parent          = mainCircle
-
 
 local diamondSize = 35 * math.sqrt(2)
 local diamond = Instance.new("Frame")
@@ -128,7 +107,6 @@ diamond.Rotation               = 45
 diamond.BackgroundTransparency = 1
 diamond.Parent                 = mainCircle
 
-
 local function createQuad(pos, color)
     local f = Instance.new("Frame")
     f.BorderSizePixel  = 0
@@ -139,12 +117,10 @@ local function createQuad(pos, color)
     return f
 end
 
-
 createQuad(UDim2.fromScale(0,   0),   LIGHT_BLUE)
 createQuad(UDim2.fromScale(0.5, 0),   DARK_BLUE)
 createQuad(UDim2.fromScale(0,   0.5), DARK_BLUE)
 createQuad(UDim2.fromScale(0.5, 0.5), LIGHT_BLUE)
-
 
 local textLabel = Instance.new("TextLabel")
 textLabel.BackgroundTransparency = 1
@@ -156,7 +132,6 @@ textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 textLabel.ZIndex     = 3
 textLabel.Parent     = mainCircle
 
-
 local clickOverlay = Instance.new("TextButton")
 clickOverlay.Name                   = "ClickOverlay"
 clickOverlay.Size                   = UDim2.fromScale(1, 1)
@@ -165,9 +140,7 @@ clickOverlay.Text                   = ""
 clickOverlay.ZIndex                 = 10
 clickOverlay.Parent                 = mainCircle
 
-
 -- ── LOCK TOGGLE ───────────────────────────────────────────────────────────────
-
 
 local lockBtn = Instance.new("TextButton")
 lockBtn.Name                   = "LockToggle"
@@ -181,12 +154,9 @@ lockBtn.TextScaled             = true
 lockBtn.ZIndex                 = 9999
 lockBtn.Parent                 = gui
 
-
 Instance.new("UICorner", lockBtn).CornerRadius = UDim.new(0.2, 0)
 
-
 -- ── TEAM TOGGLE BUTTON ────────────────────────────────────────────────────────
-
 
 local teamBtn = Instance.new("TextButton")
 teamBtn.Name                   = "TeamToggle"
@@ -200,15 +170,12 @@ teamBtn.TextScaled             = true
 teamBtn.ZIndex                 = 9999
 teamBtn.Parent                 = gui
 
-
 Instance.new("UICorner", teamBtn).CornerRadius = UDim.new(0.2, 0)
-
 
 local teamBtnDragging  = false
 local teamBtnDragInput = nil
 local teamBtnDragStart = Vector2.zero
 local teamBtnPosStart  = Vector2.zero
-
 
 local function getTeamBtnPos()
     return Vector2.new(teamBtn.Position.X.Offset, teamBtn.Position.Y.Offset)
@@ -217,7 +184,6 @@ local function setTeamBtnPos(x, y)
     local vp = workspace.CurrentCamera.ViewportSize
     teamBtn.Position = UDim2.new(0, math.clamp(x, 0, vp.X - 36), 0, math.clamp(y, 0, vp.Y - 36))
 end
-
 
 teamBtn.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch then
@@ -250,16 +216,13 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
-
 -- ── LOCK DRAG ─────────────────────────────────────────────────────────────────
-
 
 local dragLocked    = false
 local lockDragging  = false
 local lockDragInput = nil
 local lockDragStart = Vector2.zero
 local lockPosStart  = Vector2.zero
-
 
 local function getLockPos()
     return Vector2.new(lockBtn.Position.X.Offset, lockBtn.Position.Y.Offset)
@@ -268,7 +231,6 @@ local function setLockPos(x, y)
     local vp = workspace.CurrentCamera.ViewportSize
     lockBtn.Position = UDim2.new(0, math.clamp(x, 0, vp.X - 36), 0, math.clamp(y, 0, vp.Y - 36))
 end
-
 
 lockBtn.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch then
@@ -296,16 +258,13 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
-
 -- ── DRAG ──────────────────────────────────────────────────────────────────────
-
 
 local dragging   = false
 local dragInput  = nil
 local dragStart  = Vector2.zero
 local posStart   = Vector2.zero
 local TAP_THRESH = 10
-
 
 local function getPos()
     return Vector2.new(mainCircle.Position.X.Offset, mainCircle.Position.Y.Offset)
@@ -315,10 +274,8 @@ local function setPos(x, y)
     mainCircle.Position = UDim2.new(0, math.clamp(x, 0, vp.X - SIZE), 0, math.clamp(y, 0, vp.Y - SIZE))
 end
 
-
 local holding    = false
 local holdThread = nil
-
 
 local function startHold()
     if holding then return end
@@ -327,7 +284,8 @@ local function startHold()
     holdThread = task.spawn(function()
         while holding do
             local selfChar = player.Character
-            local _, entry = selfChar and getEquippedGun(selfChar)
+            -- FIXED: proper multi-return from getEquippedGun
+            local gun, entry = selfChar and getEquippedGun(selfChar)
             local cd = (entry and entry.cooldown) or 0.1
             task.spawn(fireAtTarget)
             task.wait(cd)
@@ -335,13 +293,11 @@ local function startHold()
     end)
 end
 
-
 local function stopHold()
     holding = false
     if holdThread then task.cancel(holdThread); holdThread = nil end
     mainCircle.BackgroundColor3 = DARK_BLUE
 end
-
 
 clickOverlay.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch then
@@ -366,22 +322,17 @@ UserInputService.InputEnded:Connect(function(input)
     stopHold()
 end)
 
-
 -- ── TARGET PICKER ─────────────────────────────────────────────────────────────
-
 
 local wiredHumanoids = {}
 
-
 local function getNearestTarget()
     if (tick() - lastKillTime) < KILL_COOLDOWN then return nil end
-
 
     local nearest, nearestDist = nil, math.huge
     local selfChar = player.Character
     local selfRoot = selfChar and selfChar:FindFirstChild("HumanoidRootPart")
     if not selfRoot then return nil end
-
 
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= player and not isSameTeam(p) and p.Character then
@@ -396,7 +347,6 @@ local function getNearestTarget()
             end
         end
     end
-
 
     for _, model in ipairs(workspace:GetDescendants()) do
         if model:IsA("Model") and model ~= selfChar then
@@ -418,7 +368,6 @@ local function getNearestTarget()
         end
     end
 
-
     if nearest then
         local hum = nearest.root.Parent:FindFirstChildOfClass("Humanoid")
         if hum and not wiredHumanoids[hum] then
@@ -430,13 +379,10 @@ local function getNearestTarget()
         end
     end
 
-
     return nearest
 end
 
-
 -- ── NIL HELPERS ───────────────────────────────────────────────────────────────
-
 
 local function getNilHead(targetHead)
     if not getnilinstances then return targetHead end
@@ -447,7 +393,6 @@ local function getNilHead(targetHead)
     return targetHead
 end
 
-
 local function getNilByName(name)
     if not getnilinstances then return nil end
     for _, obj in ipairs(getnilinstances()) do
@@ -456,13 +401,10 @@ local function getNilByName(name)
     return nil
 end
 
-
 -- ── AIM VARIANCE ──────────────────────────────────────────────────────────────
-
 
 local AIM_VARIANCE_MIN = 0.15
 local AIM_VARIANCE_MAX = 0.85
-
 
 local function getAimVariance(dist)
     local scale  = math.clamp(dist / 60, 0.5, 1.4)
@@ -475,9 +417,7 @@ local function getAimVariance(dist)
     )
 end
 
-
 -- ── SHOTGUN PELLET BUILDER ────────────────────────────────────────────────────
-
 
 local function buildPellets(data, hitCount, bodyRatio, clientHitSizeHead, clientHitSizeBody)
     local hits   = {}
@@ -504,12 +444,9 @@ local function buildPellets(data, hitCount, bodyRatio, clientHitSizeHead, client
     return hits
 end
 
-
 -- ── GUN REGISTRY ──────────────────────────────────────────────────────────────
 
-
 local GUN_REGISTRY = {
-
 
     { name = "intervention", skipEBind = true, cooldown = 1.5,
       fireFunc = function(gun, data)
@@ -525,7 +462,6 @@ local GUN_REGISTRY = {
                 "Replicate","Bullet",data.targetPos,muzzlePos)
       end },
 
-
     { name = "ssg-08", skipEBind = true, cooldown = 1.2,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -534,7 +470,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 0)
       end },
-
 
     { name = "chicago", skipEBind = true, cooldown = 0.03,
       fireFunc = function(gun, data)
@@ -545,7 +480,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }}, 0)
       end },
 
-
     { name = "suppressed pistol", skipEBind = true, cooldown = 0.15,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -554,7 +488,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 1)
       end },
-
 
     { name = "suppressed mac-10", skipEBind = true, cooldown = 0.07,
       fireFunc = function(gun, data)
@@ -565,7 +498,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }}, 2)
       end },
 
-
     { name = "cleanse and repent", skipEBind = true, cooldown = 0.3,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -574,7 +506,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 1)
       end },
-
 
     { name = "yam beater", skipEBind = true, skipFireBind = true, isShotgun = true, cooldown = 0.5,
       fireFunc = function(gun, data)
@@ -589,8 +520,7 @@ local GUN_REGISTRY = {
             gun.Remote:FireServer("Not Fire", hits, 5.25)
       end },
 
-
-   { name = "blaster", skipEBind = true, skipFireBind = true, cooldown = 0.3,
+    { name = "blaster", skipEBind = true, skipFireBind = true, cooldown = 0.3,
       fireFunc = function(gun, data)
             local vel     = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
             local moveDir = (vel and vel.AssemblyLinearVelocity.Magnitude > 0.1)
@@ -604,7 +534,6 @@ local GUN_REGISTRY = {
             end
       end },
 
-
     { name = "mad sheriff", skipEBind = true, cooldown = 0.5,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -613,7 +542,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 0)
       end },
-
 
     { name = "awp", skipEBind = true, cooldown = 1.3,
       fireFunc = function(gun, data)
@@ -624,7 +552,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }}, 0)
       end },
 
-
     { name = "spinbot", skipEBind = true, cooldown = 0.19,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -633,7 +560,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 0)
       end },
-
 
     { name = "pixel gun", skipEBind = true, cooldown = 0.15,
       fireFunc = function(gun, data)
@@ -644,7 +570,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }}, 1)
       end },
 
-
     { name = "pixel rifle", skipEBind = true, cooldown = 0.18,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -654,7 +579,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }}, 1.25)
       end },
 
-
     { name = "ebony and ivory", skipEBind = true, cooldown = 0.13,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -663,7 +587,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 1.25)
       end },
-
 
     { name = "crossbow", skipEBind = true, cooldown = 1.0,
       fireFunc = function(gun, data)
@@ -681,7 +604,6 @@ local GUN_REGISTRY = {
                 MouseHit=data.targetHead, MousePosition=data.targetPos })
       end },
 
-
     { name = "etymology", skipEBind = true, cooldown = 0.2,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -690,7 +612,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 1)
       end },
-
 
     { name = "femme fatale", skipEBind = true, cooldown = 0.12,
       fireFunc = function(gun, data)
@@ -703,7 +624,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }}, 0.2)
       end },
 
-
     { name = "kitchen gun", skipEBind = true, cooldown = 0.2,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -712,7 +632,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 0.5)
       end },
-
 
     { name = "m1911", skipEBind = true, skipFireBind = true, cooldown = 0.14,
       fireFunc = function(gun, data)
@@ -735,7 +654,6 @@ local GUN_REGISTRY = {
                 MouseHit=data.targetHead, MousePosition=data.targetPos })
       end },
 
-
     { name = "makarov", skipEBind = true, cooldown = 0.13,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -744,7 +662,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 0.75)
       end },
-
 
     { name = "marksman revolver", cooldown = 0.65,
       fireFunc = function(gun, data)
@@ -772,7 +689,6 @@ local GUN_REGISTRY = {
             end
       end },
 
-
     { name = "moscow", skipEBind = true, cooldown = 0.11,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -781,7 +697,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 0.55)
       end },
-
 
     { name = "sig p320", skipEBind = true, cooldown = 0.12,
       fireFunc = function(gun, data)
@@ -792,7 +707,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }}, 1.35)
       end },
 
-
     { name = "toolgun", skipEBind = true, cooldown = 0.1,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -802,13 +716,11 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }}, 0)
       end },
 
-
     { name = "trench shotgun", skipEBind = true, isShotgun = true, cooldown = 0.85,
       fireFunc = function(gun, data)
             local hits = buildPellets(data, 8, 0.6, Vector3.new(1,1,1), Vector3.new(2,2,1))
             gun.Remote:FireServer(hits)
       end },
-
 
     { name = "vampire knives", skipEBind = true, cooldown = 0.25,
       fireFunc = function(gun, data)
@@ -820,7 +732,6 @@ local GUN_REGISTRY = {
                 data.mouseNormal)
       end },
 
-
     { name = "zapper", skipEBind = true, cooldown = 0.15,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -829,7 +740,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 0)
       end },
-
 
     { name = "airpod shotty", skipEBind = true, isShotgun = true, cooldown = 0.6,
       fireFunc = function(gun, data)
@@ -861,7 +771,6 @@ local GUN_REGISTRY = {
             gun.Remote:FireServer(hits, 6)
       end },
 
-
     { name = "airpod aa12", skipEBind = true, isShotgun = true, cooldown = 0.08,
       fireFunc = function(gun, data)
             local SPREAD = 0.55
@@ -892,7 +801,6 @@ local GUN_REGISTRY = {
             gun.Remote:FireServer(hits)
       end },
 
-
     { name = "a7", skipEBind = true, cooldown = 0.09,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -901,7 +809,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 1.2)
       end },
-
 
     { name = "america", skipEBind = true, cooldown = 0.08,
       fireFunc = function(gun, data)
@@ -916,7 +823,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }}, 1)
       end },
 
-
     { name = "starling", skipEBind = true, cooldown = 0.1,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -925,7 +831,6 @@ local GUN_REGISTRY = {
                   Distance=data.dist, StartPos=data.startPos,
                   Material=Enum.Material.Plastic })
       end },
-
 
     { name = "realistic mp5", skipEBind = true, cooldown = 0.07,
       fireFunc = function(gun, data)
@@ -936,7 +841,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }})
       end },
 
-
     { name = "gun with one bullet", skipEBind = true, cooldown = 2.0,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -946,7 +850,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }})
       end },
 
-
     { name = "mad handgun", skipEBind = true, cooldown = 0.15,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -955,7 +858,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }})
       end },
-
 
     { name = "mad noob's shotgun", skipEBind = true, isShotgun = true, cooldown = 0.75,
       fireFunc = function(gun, data)
@@ -976,7 +878,6 @@ local GUN_REGISTRY = {
             gun.Remote:FireServer(hits, 5)
       end },
 
-
     { name = "blackhole raygun", skipEBind = true, cooldown = 0.3,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -986,7 +887,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }})
       end },
 
-
     { name = "skull gun", skipEBind = true, cooldown = 0.2,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -995,7 +895,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 1)
       end },
-
 
     { name = "leviathan", skipEBind = true, skipFireBind = true, cooldown = 0.55,
       fireFunc = function(gun, data)
@@ -1030,7 +929,6 @@ local GUN_REGISTRY = {
                 MouseHit=data.targetHead, MousePosition=data.targetPos })
       end },
 
-
     { name = "9mm", skipEBind = true, cooldown = 0.13,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -1039,7 +937,6 @@ local GUN_REGISTRY = {
                    Distance=data.dist, StartPos=data.startPos,
                    Material=Enum.Material.Plastic }}, 1)
       end },
-
 
     { name = "pm9 evil gun", skipEBind = true, cooldown = 0.13,
       fireFunc = function(gun, data)
@@ -1050,7 +947,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }}, 1.25)
       end },
 
-
     { name = "micro smg", skipEBind = true, cooldown = 0.05,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -1060,7 +956,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }}, 1.5)
       end },
 
-
     { name = "scrumptious beverage", skipEBind = true, cooldown = 0.4,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -1068,7 +963,6 @@ local GUN_REGISTRY = {
                 data.targetHead,
                 data.mouseNormal)
       end },
-
 
     { name = "chinalake", skipEBind = true, cooldown = 0.9,
       fireFunc = function(gun, data)
@@ -1085,7 +979,6 @@ local GUN_REGISTRY = {
                 HoldTime=pressHold, MouseNormal=data.mouseNormal,
                 MouseHit=data.targetHead, MousePosition=data.targetPos })
       end },
-
 
     { name = "bowl of yummy bullets", skipEBind = true, cooldown = 0.18,
       fireFunc = function(gun, data)
@@ -1107,7 +1000,6 @@ local GUN_REGISTRY = {
                 MouseHit=data.targetHead, MousePosition=data.targetPos })
       end },
 
-
     { name = "sten gun", skipEBind = true, cooldown = 0.09,
       fireFunc = function(gun, data)
             local vel     = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -1128,7 +1020,6 @@ local GUN_REGISTRY = {
                 MouseHit=data.targetHead, MousePosition=data.targetPos })
       end },
 
-
     { name = "auto-5", skipEBind = true, isShotgun = true, cooldown = 0.7,
       fireFunc = function(gun, data)
             local SPREAD = 0.35
@@ -1146,7 +1037,6 @@ local GUN_REGISTRY = {
             end
             gun.Remote:FireServer(hits, 3.5)
       end },
-
 
     { name = "the big one", skipEBind = true, isShotgun = true, cooldown = 0.8,
       fireFunc = function(gun, data)
@@ -1189,7 +1079,6 @@ local GUN_REGISTRY = {
             gun.Remote:FireServer(hits, blastOrigin)
       end },
 
-
     { name = "dragon deagle", skipEBind = true, cooldown = 0.35,
       fireFunc = function(gun, data)
             local vel     = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -1209,7 +1098,6 @@ local GUN_REGISTRY = {
                 HoldTime=pressHold, MouseNormal=data.mouseNormal,
                 MouseHit=data.nilHead, MousePosition=data.targetPos })
       end },
-
 
     { name = "m16", skipEBind = true, cooldown = 0.1,
       fireFunc = function(gun, data)
@@ -1231,7 +1119,6 @@ local GUN_REGISTRY = {
                 MouseHit=data.targetHead, MousePosition=data.targetPos })
       end },
 
-
     { name = "50cal", skipEBind = true, cooldown = 1.4,
       fireFunc = function(gun, data)
             local vel     = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -1251,7 +1138,6 @@ local GUN_REGISTRY = {
                 HoldTime=pressHold, MouseNormal=data.mouseNormal,
                 MouseHit=data.targetHead, MousePosition=data.targetPos })
       end },
-
 
     { name = "shotgun", skipEBind = true, isShotgun = true, cooldown = 0.7,
       fireFunc = function(gun, data)
@@ -1282,7 +1168,6 @@ local GUN_REGISTRY = {
                 MouseHit=data.targetHead, MousePosition=data.targetPos })
       end },
 
-
     { name = "magnum", skipEBind = true, cooldown = 0.45,
       fireFunc = function(gun, data)
             local vel     = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -1302,7 +1187,6 @@ local GUN_REGISTRY = {
                 HoldTime=pressHold, MouseNormal=data.mouseNormal,
                 MouseHit=data.targetHead, MousePosition=data.targetPos })
       end },
-
 
     { name = "fal", skipEBind = true, cooldown = 0.14,
       fireFunc = function(gun, data)
@@ -1324,7 +1208,6 @@ local GUN_REGISTRY = {
                 MouseHit=data.targetHead, MousePosition=data.targetPos })
       end },
 
-
     { name = "emperor", skipEBind = true, cooldown = 0.3,
       fireFunc = function(gun, data)
             local vel     = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -1340,7 +1223,6 @@ local GUN_REGISTRY = {
                 HoldTime=pressHold, MouseNormal=data.mouseNormal,
                 MouseHit=data.targetHead, MousePosition=data.targetPos })
       end },
-
 
     { name = "your keyboard", skipEBind = true, cooldown = 0.25,
       fireFunc = function(gun, data)
@@ -1361,7 +1243,6 @@ local GUN_REGISTRY = {
                 MousePosition=bodyPos })
       end },
 
-
     { name = "taser", skipEBind = true, cooldown = 0.5,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -1371,12 +1252,10 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }}, 0)
       end },
 
-
     { name = "porcine propulsion apparatus of great magnitude", skipEBind = true, cooldown = 0.5,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(true)
       end },
-
 
     { name = "kaiju killer", skipEBind = true, cooldown = 1.0,
       fireFunc = function(gun, data)
@@ -1386,12 +1265,10 @@ local GUN_REGISTRY = {
             end
       end },
 
-
     { name = "idaho", skipEBind = true, cooldown = 0.3,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
       end },
-
 
     { name = "hs-010", skipEBind = true, cooldown = 0.3,
       fireFunc = function(gun, data)
@@ -1402,7 +1279,6 @@ local GUN_REGISTRY = {
                    Material=Enum.Material.Plastic }}, 3.5)
       end },
 
-
     { name = "kentucky", skipEBind = true, cooldown = 0.3,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -1411,7 +1287,6 @@ local GUN_REGISTRY = {
                 data.mouseNormal)
       end },
 
-
     { name = "dinner blaster", skipEBind = true, cooldown = 0.3,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(
@@ -1419,7 +1294,6 @@ local GUN_REGISTRY = {
                 data.targetRoot or data.targetHead,
                 data.mouseNormal)
       end },
-
 
     { name = "ol' reliable", skipEBind = true, isShotgun = true, cooldown = 0.75,
       fireFunc = function(gun, data)
@@ -1440,27 +1314,20 @@ local GUN_REGISTRY = {
             gun.Remote:FireServer(hits)
       end },
 
-
-{ name = "instant death", skipEBind = true, cooldown = 0.3,
+    { name = "instant death", skipEBind = true, cooldown = 0.3,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(data.nilHead)
       end },
 
-
-{ name = "death note", skipEBind = true, cooldown = 0.3,
+    { name = "death note", skipEBind = true, cooldown = 0.3,
       fireFunc = function(gun, data)
             gun.Remote:FireServer(data.nilHead)
       end },
-
-
-
 
     -- ── ADD MORE GUNS BELOW ───────────────────────────────────────────────────
 }
 
-
 -- ── GUN LOOKUP ────────────────────────────────────────────────────────────────
-
 
 function getEquippedGun(selfChar)
     local function matchRegistry(item)
@@ -1485,9 +1352,7 @@ function getEquippedGun(selfChar)
     return nil, nil
 end
 
-
 -- ── FIRE SEQUENCE ─────────────────────────────────────────────────────────────
-
 
 function fireAtTarget()
     local selfChar = player.Character
@@ -1495,14 +1360,11 @@ function fireAtTarget()
     local selfRoot = selfChar:FindFirstChild("HumanoidRootPart")
     if not selfRoot then return end
 
-
     local target = getNearestTarget()
     if not target then return end
 
-
     local gun, entry = getEquippedGun(selfChar)
     if not gun then return end
-
 
     local targetHead = target.head
     local targetRoot = target.root
@@ -1510,16 +1372,13 @@ function fireAtTarget()
     local startPos   = selfRoot.Position
     local dist       = (targetPos - startPos).Magnitude
 
-
     local effectiveTargetPos = targetPos
     if not entry.isShotgun then
         effectiveTargetPos = targetPos + getAimVariance(dist)
     end
 
-
     local dir        = effectiveTargetPos - startPos
     local baseNormal = dir.Magnitude > 0 and dir.Unit or Vector3.new(0, 0, -1)
-
 
     local JITTER = 0.015
     local function driftedNormal()
@@ -1530,14 +1389,11 @@ function fireAtTarget()
         )).Unit
     end
 
-
     local vel     = selfRoot.AssemblyLinearVelocity
     local moveDir = vel.Magnitude > 0.1 and vel.Unit or Vector3.new(0, 0, 0)
 
-
     local holdTime = 0.09 + math.random() * 0.02
     local fireHold = 0.08 + math.random() * 0.02
-
 
     if not entry.skipEBind then
         Abilities:FireServer({ MoveDirection=moveDir, Bind="E", PressType="Press",
@@ -1550,7 +1406,6 @@ function fireAtTarget()
         task.wait(0.01)
     end
 
-
     if not entry.skipFireBind then
         Abilities:FireServer({ MoveDirection=moveDir, Bind="FIRE", PressType="Press",
             HoldTime=0, MouseNormal=driftedNormal(),
@@ -1561,7 +1416,6 @@ function fireAtTarget()
             MouseHit=targetHead, MousePosition=effectiveTargetPos })
         task.wait(0.01)
     end
-
 
     entry.fireFunc(gun, {
         targetHead  = targetHead,
