@@ -1305,35 +1305,134 @@ local GUN_REGISTRY = {
 
     { name = "igniter", skipEBind = true, cooldown = 0.3,
       fireFunc = function(gun, data)
-            gun.Remote:FireServer(
-                data.targetPos,
-                data.targetHead,
-                data.mouseNormal)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
       end },
 
     { name = "turkey blaster", skipEBind = true, cooldown = 0.3,
       fireFunc = function(gun, data)
-            gun.Remote:FireServer(
-                data.targetPos,
-                data.targetHead,
-                data.mouseNormal)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
       end },
 
     { name = "distressed red ball", skipEBind = true, cooldown = 0.3,
       fireFunc = function(gun, data)
-            gun.Remote:FireServer(
-                data.targetPos,
-                data.targetHead,
-                data.mouseNormal)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
       end },
 
     { name = "unregistered hypercam 2", skipEBind = true, cooldown = 0.3,
       playersOnly = true,
       fireFunc = function(gun, data)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
+      end },
+
+    { name = "sharpened rebar", skipEBind = true, cooldown = 0.3,
+      fireFunc = function(gun, data)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
+      end },
+
+    { name = "nobara plush", skipEBind = true, cooldown = 0.3,
+      fireFunc = function(gun, data)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
+      end },
+
+    { name = "misery", skipEBind = true, cooldown = 0.3,
+      fireFunc = function(gun, data)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
+      end },
+
+    { name = "ifon", skipEBind = true, cooldown = 0.15,
+      fireFunc = function(gun, data)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
+      end },
+
+    { name = "honeybun", skipEBind = true, cooldown = 0.3,
+      fireFunc = function(gun, data)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
+      end },
+
+    { name = "hitman", skipEBind = true, cooldown = 0.3,
+      fireFunc = function(gun, data)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
+      end },
+
+    { name = "friend inside me", skipEBind = true, cooldown = 0.3,
+      fireFunc = function(gun, data)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
+      end },
+
+    { name = "freeze ray", skipEBind = true, cooldown = 0.5,
+      fireFunc = function(gun, data)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
+      end },
+
+    { name = "football", skipEBind = true, cooldown = 0.5,
+      fireFunc = function(gun, data)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
+      end },
+
+    { name = "flying guillotine", skipEBind = true, skipFireBind = true, cooldown = 0.5,
+      fireFunc = function(gun, data)
+            pcall(function()
+                local rf = gun:FindFirstChildOfClass("RemoteFunction")
+                if rf and getcallbackvalue then
+                    local cb = getcallbackvalue(rf, "OnClientInvoke")
+                    if cb then cb() end
+                end
+            end)
+      end },
+
+    { name = "druid staff", skipEBind = true, cooldown = 0.4,
+      fireFunc = function(gun, data)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
+      end },
+
+    { name = "doogle", skipEBind = true, cooldown = 0.2,
+      fireFunc = function(gun, data)
             gun.Remote:FireServer(
-                data.targetPos,
-                data.targetHead,
-                data.mouseNormal)
+                {{ Normal=data.mouseNormal, ClientHitSize=Vector3.new(1,1,1),
+                   Position=data.targetPos, Instance=data.targetHead,
+                   Distance=data.dist, StartPos=data.startPos,
+                   Material=Enum.Material.Plastic }}, 1.5)
+      end },
+
+    { name = "bottle", skipEBind = true, cooldown = 0.3,
+      fireFunc = function(gun, data)
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
+      end },
+
+    { name = "bible", skipEBind = true, cooldown = 0.3,
+      fireFunc = function(gun, data)
+            local vel     = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+            local moveDir = (vel and vel.AssemblyLinearVelocity.Magnitude > 0.1)
+                            and vel.AssemblyLinearVelocity.Unit or Vector3.new(0,0,0)
+            local pressHold = 0.05 + math.random() * 0.01
+            gun.Remote:FireServer(data.targetPos, data.targetHead, data.mouseNormal)
+            Abilities:FireServer({ MoveDirection=moveDir, Bind="FIRE", PressType="Press",
+                HoldTime=0, MouseNormal=data.mouseNormal,
+                MouseHit=data.targetHead, MousePosition=data.targetPos })
+            task.wait(pressHold)
+            Abilities:FireServer({ MoveDirection=moveDir, Bind="FIRE", PressType="Release",
+                HoldTime=pressHold, MouseNormal=data.mouseNormal,
+                MouseHit=data.targetHead, MousePosition=data.targetPos })
+      end },
+
+    { name = "garand thumb", skipEBind = true, cooldown = 0.5,
+      fireFunc = function(gun, data)
+            local vel     = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+            local moveDir = (vel and vel.AssemblyLinearVelocity.Magnitude > 0.1)
+                            and vel.AssemblyLinearVelocity.Unit or Vector3.new(0,0,0)
+            local pressHold = 0.05 + math.random() * 0.01
+            Abilities:FireServer({ MoveDirection=moveDir, Bind="FIRE", PressType="Press",
+                HoldTime=0, MouseNormal=data.mouseNormal,
+                MouseHit=data.targetHead, MousePosition=data.targetPos })
+            gun.Remote:FireServer(
+                {{ Normal=data.mouseNormal, ClientHitSize=Vector3.new(1,1,1),
+                   Position=data.targetPos, Instance=data.targetHead,
+                   Distance=data.dist, StartPos=data.startPos,
+                   Material=Enum.Material.Plastic }}, 1.25)
+            task.wait(pressHold)
+            Abilities:FireServer({ MoveDirection=moveDir, Bind="FIRE", PressType="Release",
+                HoldTime=pressHold, MouseNormal=data.mouseNormal,
+                MouseHit=data.targetHead, MousePosition=data.targetPos })
       end },
 }
 
